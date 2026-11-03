@@ -1,5 +1,5 @@
 {
-  "displayName": "反向端口 · Reverse Ports",
+  "displayName": "Reverse Ports",
   "description": "在底部面板管理 SSH 反向端口转发，让远程设备访问本机服务。",
   "panel.title": "反向端口",
   "reversePorts.open": "反向端口：打开面板",

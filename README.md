@@ -1,4 +1,4 @@
-# 反向端口 · Reverse Ports
+# Reverse Ports
 
 ![Reverse Ports](media/icon.png)
 
