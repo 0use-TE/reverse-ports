@@ -2,7 +2,7 @@
 
 ![Reverse Ports](media/icon.png)
 
-Version 1.0.0 · [GitHub Releases](https://github.com/0use-TE/reverse-ports/releases/latest)
+[Changelog](CHANGELOG.md) · [GitHub Releases](https://github.com/0use-TE/reverse-ports/releases/latest)
 
 在 VS Code 底部新增一个采用原生“端口”面板布局的标签页，管理 SSH 反向端口转发。
 

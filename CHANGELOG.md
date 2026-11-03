@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1 — 2026-11-03
+
+- Match the empty-view button's font size, line height, border, corner radius and spacing to VS Code's native Ports view.
+
 ## 1.0.0 — 2026-11-03
 
 - Initial public release of Reverse Ports with a monitor and return-arrow icon.

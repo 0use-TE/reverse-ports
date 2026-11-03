@@ -4,9 +4,10 @@
 html,body { height:100%; }
 body { padding:0 10px; margin:0; overflow:auto; color:var(--vscode-foreground); background:var(--vscode-panel-background); font:var(--vscode-font-size) var(--vscode-font-family); }
 #grid { position:relative; min-width:830px; min-height:100%; }
-#emptyState { padding:12px 10px; }
-#emptyState p { margin:0 0 12px; line-height:20px; }
-#forwardPort { display:block; width:300px; max-width:100%; height:26px; padding:4px 12px; border:0; border-radius:3px; font:inherit; color:var(--vscode-button-foreground); background:var(--vscode-button-background); cursor:pointer; }
+/* Match the workbench welcome view and Monaco text button metrics. */
+#emptyState { padding:0 10px 13px; font-size:13px; font-weight:400; line-height:1.4em; }
+#emptyState p { margin:13px 0 0; }
+#forwardPort { display:flex; align-items:center; justify-content:center; width:300px; max-width:100%; margin:13px 0 0; padding:4px 8px; border:1px solid var(--vscode-button-border,transparent); border-radius:4px; font-family:inherit; font-size:12px; font-weight:400; font-style:normal; line-height:16px; text-align:center; color:var(--vscode-button-foreground); background:var(--vscode-button-background); cursor:pointer; }
 #forwardPort:hover { background:var(--vscode-button-hoverBackground); }
 .column-lines { display:grid; grid-template-columns:var(--port-columns); position:absolute; top:27px; bottom:0; width:100%; pointer-events:none; }
 .column-lines>span:nth-child(n+2):not(:last-child) { border-right:1px solid var(--vscode-panel-border,transparent); }
