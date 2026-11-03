@@ -1,0 +1,49 @@
+:root { color-scheme:light dark; --port-columns:38px minmax(180px,260px) minmax(245px,260px) minmax(180px,1fr) minmax(150px,30.5%); }
+* { box-sizing:border-box; }
+[hidden] { display:none !important; }
+html,body { height:100%; }
+body { padding:0 10px; margin:0; overflow:auto; color:var(--vscode-foreground); background:var(--vscode-panel-background); font:var(--vscode-font-size) var(--vscode-font-family); }
+#grid { position:relative; min-width:830px; min-height:100%; }
+#emptyState { padding:12px 10px; }
+#emptyState p { margin:0 0 12px; line-height:20px; }
+#forwardPort { display:block; width:300px; max-width:100%; height:26px; padding:4px 12px; border:0; border-radius:3px; font:inherit; color:var(--vscode-button-foreground); background:var(--vscode-button-background); cursor:pointer; }
+#forwardPort:hover { background:var(--vscode-button-hoverBackground); }
+.column-lines { display:grid; grid-template-columns:var(--port-columns); position:absolute; top:27px; bottom:0; width:100%; pointer-events:none; }
+.column-lines>span:nth-child(n+2):not(:last-child) { border-right:1px solid var(--vscode-panel-border,transparent); }
+.grid-row { display:grid; grid-template-columns:var(--port-columns); align-items:center; height:24px; }
+.grid-row>* { min-width:0; height:24px; padding:3px 8px; border-right:1px solid var(--vscode-panel-border,transparent); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.grid-row>:first-child { border:0; padding:2px 5px; }
+.grid-row>:last-child { border:0; }
+.column-head { height:27px; font-weight:500; }
+.column-head>* { height:27px; border:0; padding-top:5px; }
+.data-row:hover,.data-row:focus-within,.editing { background:var(--vscode-list-hoverBackground); border-radius:3px; }
+.data-row.selected { background:var(--vscode-list-inactiveSelectionBackground,var(--vscode-list-hoverBackground)); }
+.data-row:focus { outline:none; }
+.data-row:focus-visible { outline:1px solid var(--vscode-focusBorder); outline-offset:-1px; }
+.port-cell,.forward-cell { display:flex; align-items:center; gap:6px; }
+.port-cell .port-label { flex:1; overflow:hidden; text-overflow:ellipsis; }
+.label { color:var(--vscode-descriptionForeground); overflow:hidden; text-overflow:ellipsis; }
+.forward-label { flex:1; color:var(--vscode-textLink-foreground); overflow:hidden; text-overflow:ellipsis; cursor:default; }
+.actions { display:flex; align-items:center; gap:1px; flex-shrink:0; visibility:hidden; }
+.data-row:hover .actions,.data-row:focus-within .actions { visibility:visible; }
+.icon-button { display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; width:20px; height:20px; padding:2px; border:0; border-radius:3px; color:var(--vscode-icon-foreground,var(--vscode-foreground)); background:transparent; cursor:pointer; }
+.icon-button:hover { background:var(--vscode-toolbar-hoverBackground); }
+.indicator { color:var(--vscode-descriptionForeground); }
+.indicator.running { color:var(--vscode-testing-iconPassed,var(--vscode-foreground)); }
+.indicator.error { color:var(--vscode-errorForeground); }
+.indicator.starting,.indicator.stopping { color:var(--vscode-editorWarning-foreground); }
+svg { width:16px; height:16px; }
+button:disabled { opacity:.45; cursor:default; }
+button:focus-visible,input:focus-visible { outline:1px solid var(--vscode-focusBorder); outline-offset:-1px; }
+.cell-input { display:block; width:100%; height:22px; margin:-2px 0; padding:1px 5px; border:1px solid var(--vscode-input-border,transparent); border-radius:0; background:var(--vscode-input-background); color:var(--vscode-input-foreground); font:inherit; }
+.cell-input:focus { border-color:var(--vscode-focusBorder); outline:0; }
+.cell-input[aria-invalid=true] { border-color:var(--vscode-inputValidation-errorBorder,var(--vscode-errorForeground)); }
+.input-cell { padding:3px 0; overflow:visible; }
+.add-cell { padding:2px 8px; }
+#add { font:inherit; height:21px; padding:1px 12px; border:0; border-radius:3px; color:var(--vscode-button-foreground); background:var(--vscode-button-background); cursor:pointer; }
+#add:hover { background:var(--vscode-button-hoverBackground); }
+.process-cell { color:var(--vscode-descriptionForeground); }
+#contextMenu { position:fixed; z-index:10; min-width:180px; padding:4px; border:1px solid var(--vscode-menu-border,var(--vscode-panel-border)); border-radius:4px; background:var(--vscode-menu-background,var(--vscode-editor-background)); box-shadow:0 2px 8px var(--vscode-widget-shadow); }
+#contextMenu button { display:flex; align-items:center; gap:8px; width:100%; padding:5px 10px; border:0; border-radius:2px; text-align:left; color:var(--vscode-menu-foreground,var(--vscode-foreground)); background:transparent; cursor:pointer; font:inherit; }
+#contextMenu button:hover { background:var(--vscode-menu-selectionBackground); color:var(--vscode-menu-selectionForeground); }
+.check-mark { width:14px; }

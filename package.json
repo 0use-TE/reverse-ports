@@ -1,0 +1,122 @@
+{
+  "name": "reverse-ports",
+  "displayName": "%displayName%",
+  "description": "%description%",
+  "version": "1.0.0",
+  "icon": "media/icon.png",
+  "publisher": "ouse-local",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "extensionKind": [
+    "ui"
+  ],
+  "main": "./src/extension.js",
+  "activationEvents": [
+    "onView:reversePorts.view",
+    "onStartupFinished"
+  ],
+  "scripts": {
+    "test": "node --test test/core.test.js test/panel.test.js test/localization.test.js test/terminal-proxy.test.js test/proxy-workflow.test.js test/extension-flow.test.js",
+    "test:server": "node test/server-test.js",
+    "test:vscode": "node test/run-vscode.js",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "jsdom": "^30.1.3",
+    "typescript": "^5.9.3"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "reversePorts.open",
+        "title": "%reversePorts.open%"
+      },
+      {
+        "command": "reversePorts.stopAll",
+        "title": "%reversePorts.stopAll%"
+      },
+      {
+        "command": "reversePorts.diagnose",
+        "title": "%reversePorts.diagnose%"
+      },
+      {
+        "command": "reversePorts.logs",
+        "title": "%reversePorts.logs%"
+      },
+      {
+        "command": "reversePorts.selectProxy",
+        "title": "%reversePorts.selectProxy%"
+      },
+      {
+        "command": "reversePorts.copyProxy",
+        "title": "%reversePorts.copyProxy%"
+      },
+      {
+        "command": "reversePorts.disableProxy",
+        "title": "%reversePorts.disableProxy%"
+      },
+      {
+        "command": "reversePorts.newProxyTerminal",
+        "title": "%reversePorts.newProxyTerminal%"
+      }
+    ],
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "reversePorts",
+          "title": "%panel.title%",
+          "icon": "media/tunnel.svg"
+        }
+      ]
+    },
+    "views": {
+      "reversePorts": [
+        {
+          "type": "webview",
+          "id": "reversePorts.view",
+          "name": "%panel.title%"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "%panel.title%",
+      "properties": {
+        "reversePorts.sshPath": {
+          "type": "string",
+          "default": "ssh",
+          "scope": "application",
+          "description": "%reversePorts.sshPath.description%"
+        },
+        "reversePorts.sshConfigFile": {
+          "type": "string",
+          "default": "",
+          "scope": "application",
+          "description": "%reversePorts.sshConfigFile.description%"
+        }
+      }
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/0use-TE/reverse-ports.git"
+  },
+  "homepage": "https://github.com/0use-TE/reverse-ports#readme",
+  "bugs": {
+    "url": "https://github.com/0use-TE/reverse-ports/issues"
+  },
+  "keywords": [
+    "ssh",
+    "reverse",
+    "port",
+    "forwarding",
+    "proxy",
+    "remote"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "displayName": "反向端口 · Reverse Ports",
+  "description": "在底部面板管理 SSH 反向端口转发，让远程设备访问本机服务。",
+  "panel.title": "反向端口",
+  "reversePorts.open": "反向端口：打开面板",
+  "reversePorts.stopAll": "反向端口：停止所有隧道",
+  "reversePorts.diagnose": "反向端口：环境检查",
+  "reversePorts.logs": "反向端口：查看日志",
+  "reversePorts.sshPath.description": "本机 OpenSSH 可执行文件路径。",
+  "reversePorts.sshConfigFile.description": "可选的本机 SSH 配置文件绝对路径；留空则使用 OpenSSH 默认配置。",
+  "reversePorts.selectProxy": "反向端口：选择终端代理规则",
+  "reversePorts.copyProxy": "反向端口：复制三行代理变量",
+  "reversePorts.disableProxy": "反向端口：关闭终端代理",
+  "reversePorts.newProxyTerminal": "反向端口：新建代理终端"
+}

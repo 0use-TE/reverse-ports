@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="{{LANG}}"><head><meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src {{CSP}}; script-src 'nonce-{{NONCE}}';">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="{{STYLE}}"><title>{{t:反向端口}}</title></head>
+<body>
+<section id="emptyState" hidden>
+<p>{{t:没有转发的端口。转发端口以让远程设备访问本机正在运行的服务。}}</p>
+<button id="forwardPort" type="button">{{t:转发端口}}</button>
+</section>
+<main id="grid" role="table" aria-label="{{t:反向端口}}">
+<div class="column-lines" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+<div class="grid-row column-head" role="row"><span role="columnheader"></span><span role="columnheader">{{t:端口}}</span><span role="columnheader">{{t:转发地址}}</span><span role="columnheader">{{t:正在运行的进程}}</span><span role="columnheader">{{t:源}}</span></div>
+<div id="rows" role="rowgroup"></div>
+</main>
+<datalist id="hosts"></datalist>
+<div id="contextMenu" role="menu" hidden></div>
+<script nonce="{{NONCE}}" src="{{I18N_SCRIPT}}"></script><script nonce="{{NONCE}}" src="{{SCRIPT}}"></script></body></html>

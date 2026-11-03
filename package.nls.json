@@ -1,0 +1,15 @@
+{
+  "displayName": "Reverse Ports",
+  "description": "Manage SSH reverse port forwarding in the bottom panel so remote devices can access local services.",
+  "panel.title": "Reverse Ports",
+  "reversePorts.open": "Reverse Ports: Open panel",
+  "reversePorts.stopAll": "Reverse Ports: Stop all tunnels",
+  "reversePorts.diagnose": "Reverse Ports: Check environment",
+  "reversePorts.logs": "Reverse Ports: Show logs",
+  "reversePorts.sshPath.description": "Path to the local OpenSSH executable.",
+  "reversePorts.sshConfigFile.description": "Optional absolute path to a local SSH configuration file. Leave empty to use OpenSSH defaults.",
+  "reversePorts.selectProxy": "Reverse Ports: Use rule for terminal proxy",
+  "reversePorts.copyProxy": "Reverse Ports: Copy three proxy export lines",
+  "reversePorts.disableProxy": "Reverse Ports: Disable terminal proxy",
+  "reversePorts.newProxyTerminal": "Reverse Ports: New proxy terminal"
+}

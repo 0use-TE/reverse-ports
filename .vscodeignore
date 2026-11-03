@@ -1,0 +1,11 @@
+node_modules/**
+.vscode-test/**
+test/**
+test-results/**
+TEST-RESULTS.md
+work/**
+.vscode/**
+.github/**
+PUBLISHING.md
+package-lock.json
+*.vsix

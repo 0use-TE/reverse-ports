@@ -1,0 +1,21 @@
+'use strict';
+const assert = require('node:assert/strict');
+const vscode = require('vscode');
+exports.run = async function () {
+  const extension = vscode.extensions.getExtension(`${require('../package.json').publisher}.${require('../package.json').name}`);
+  assert(extension); const api = await extension.activate();
+  assert.equal(extension.packageJSON.extensionKind[0], 'ui');
+  const expected=vscode.env.language.toLowerCase().startsWith('zh')?'反向端口':'Reverse Ports';
+  if(process.env.TEST_VSCODE_LOCALE) assert.equal(vscode.env.language.toLowerCase(),process.env.TEST_VSCODE_LOCALE.toLowerCase());
+  assert.equal(require('../src/localization').t('反向端口'),expected);
+  assert.equal(extension.packageJSON.contributes.viewsContainers.panel[0].title,expected);
+  console.log(`Locale verified: ${vscode.env.language}; panel title: ${expected}`);
+  assert.deepEqual(api.getRules(),[]);
+  assert((await vscode.commands.getCommands(true)).includes('reversePorts.diagnose'));
+  for(const command of ['selectProxy','copyProxy','disableProxy','newProxyTerminal'])assert((await vscode.commands.getCommands(true)).includes(`reversePorts.${command}`));
+  assert.equal(api.getTerminalProxy().enabled,false);
+  await vscode.commands.executeCommand('reversePorts.open');
+  await vscode.commands.executeCommand('reversePorts.stopAll');
+  await new Promise(resolve => setTimeout(resolve,1500));
+  console.log('PASS: local extension host activation, panel command, and stop-all command.');
+};
