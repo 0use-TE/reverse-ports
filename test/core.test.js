@@ -48,11 +48,41 @@ test('forward failure and missing ssh yield useful error states', () => {
   missing.start(rule); assert.equal(missing.status(rule.id).state,'error'); manager.dispose(); missing.dispose();
   assert.match(explainError('Permission denied (publickey).'),/认证失败/);
 });
+
+test('a successful password retry clears old authentication errors before a later disconnect', () => {
+  const child = fake(); let args;
+  const manager = new TunnelManager({ spawn: (_exe, value) => { args = value; return child; } });
+  manager.start(rule);
+  child.stderr.write('Permission denied, please try again.\n');
+  child.stdout.write(args.at(-1).match(/REVERSE_PORTS_READY_[a-f0-9]+/)[0] + '\n');
+  assert.equal(manager.status(rule.id).state, 'running');
+  child.stderr.write('Connection reset by peer'); child.emit('close', 255, null);
+  assert.match(manager.status(rule.id).error, /断开/);
+  manager.dispose();
+});
 test('startup timeout kills ssh; dispose prevents further starts', async () => {
   const child = fake(); const manager = new TunnelManager({ spawn: () => child, startTimeout: 20 });
   manager.start(rule); await new Promise(resolve => setTimeout(resolve,40));
   assert.equal(manager.status(rule.id).state,'error'); assert.equal(child.kills.length,1);
   child.emit('close',null,'SIGTERM'); manager.dispose(); assert.throws(() => manager.start(rule));
+});
+
+test('authentication pauses startup timeout and cancel stops the process', async () => {
+  const child = fake(); let disposed = false;
+  const authentication = { env: { SSH_ASKPASS: 'helper' }, dispose() { disposed = true; } };
+  const manager = new TunnelManager({ spawn: (_exe, args, options) => {
+    assert(args.includes('BatchMode=no')); assert(args.includes('StrictHostKeyChecking=yes'));
+    assert(args.includes('ConnectTimeout=0'));
+    assert.equal(options.env, authentication.env); return child;
+  }, startTimeout: 20 });
+  manager.start(rule, authentication);
+  authentication.onPrompt(true);
+  await new Promise(resolve => setTimeout(resolve, 45));
+  assert.equal(manager.status(rule.id).state, 'starting');
+  authentication.onCancel();
+  assert.equal(manager.status(rule.id).state, 'stopping');
+  assert.equal(disposed, true);
+  child.emit('close', 255, null); manager.dispose();
 });
 test('local target TCP probe reports success and refusal', async () => {
   const server = net.createServer(socket => socket.end()); await new Promise(resolve => server.listen(0,'127.0.0.1',resolve));

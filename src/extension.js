@@ -8,6 +8,7 @@ const { validateRule, probe, explainSystemError, checkEnvironment, TunnelManager
 const { t, setLanguage, renderLocalizedHtml } = require('./localization');
 const { TerminalProxy, proxyCommands, proxyAddress, remoteAlias } = require('./terminal-proxy');
 const { ProxyWorkflow } = require('./proxy-workflow');
+const { createAskpass } = require('./askpass');
 function activate(context) {
     setLanguage(vscode.env.language);
     const output = vscode.window.createOutputChannel(t("反向端口"));
@@ -75,10 +76,32 @@ function activate(context) {
         });
         terminal.show();
     };
+    let promptQueue = Promise.resolve();
     const startRule=async rule=>{
         await checkEnvironment(getConfig());notices.delete(rule.id);
         try {await probe(rule.targetHost,rule.targetPort);}catch(error){notices.set(rule.id,explainSystemError(error,'target'));}
-        manager.start(rule);
+        const authentication = await createAskpass((question, signal) => {
+            const result = promptQueue.then(async () => {
+                if (signal.aborted) return undefined;
+                const cancellation = new vscode.CancellationTokenSource();
+                const abort = () => cancellation.cancel();
+                signal.addEventListener('abort', abort, { once: true });
+                try {
+                    return await vscode.window.showInputBox({
+                        title: t`SSH 认证 · ${rule.host}`,
+                        prompt: question || t('请输入 SSH 密码或私钥口令'),
+                        password: true, ignoreFocusOut: true
+                    }, cancellation.token);
+                } finally {
+                    signal.removeEventListener('abort', abort);
+                    cancellation.dispose();
+                }
+            });
+            promptQueue = result.catch(() => {});
+            return result;
+        });
+        try { manager.start(rule, authentication); }
+        catch (error) { authentication.dispose(); throw error; }
     };
     workflow=new ProxyWorkflow({proxy:terminalProxy,status:id=>manager.status(id),findRule:id=>rules.find(r=>r.id===id),
         persist:id=>context.workspaceState.update('terminalProxyRule',id || undefined),start:startRule,open:newProxyTerminal,

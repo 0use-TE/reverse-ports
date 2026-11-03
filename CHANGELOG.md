@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.2 — 2026-11-03
+
+- Prompt for SSH passwords, private key passphrases and interactive authentication in masked VS Code input boxes, including ProxyJump authentication.
+- Keep credentials in memory only; cancel the connection when input is canceled and pause the startup timeout while waiting for input.
+- Prevent OpenSSH's banner timeout from expiring behind a jump-host password dialog, and clear failed authentication attempts after connection so later disconnects show the correct cause.
+
 ## 1.0.1 — 2026-11-03
 
 - Match the empty-view button's font size, line height, border, corner radius and spacing to VS Code's native Ports view.

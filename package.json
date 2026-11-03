@@ -2,7 +2,7 @@
   "name": "reverse-ports",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "icon": "media/icon.png",
   "publisher": "0use-TE",
   "license": "MIT",
@@ -21,8 +21,9 @@
     "onStartupFinished"
   ],
   "scripts": {
-    "test": "node --test test/core.test.js test/panel.test.js test/localization.test.js test/terminal-proxy.test.js test/proxy-workflow.test.js test/extension-flow.test.js",
+    "test": "node --test test/askpass.test.js test/core.test.js test/panel.test.js test/localization.test.js test/terminal-proxy.test.js test/proxy-workflow.test.js test/extension-flow.test.js",
     "test:server": "node test/server-test.js",
+    "test:auth": "node test/auth-integration.js",
     "test:vscode": "node test/run-vscode.js",
     "package": "vsce package"
   },

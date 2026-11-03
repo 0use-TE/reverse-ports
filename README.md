@@ -42,7 +42,7 @@ export NO_PROXY="localhost,127.0.0.1,::1${NO_PROXY:+,$NO_PROXY}${no_proxy:+,$no_
 ## 认证与设置
 
 - 扩展固定在本机 UI 扩展宿主运行，使用本机 OpenSSH，与微软 Remote SSH 的连接独立。
-- 支持现有 SSH 密钥、Agent、SSH config 和 ProxyJump。暂不支持密码输入弹窗；先在本机终端确认同一别名可以通过密钥登录，并核验主机指纹。
+- 支持现有 SSH 密钥、Agent、SSH config 和 ProxyJump。需要密码、私钥口令或交互式认证时，自动弹出 VS Code 隐藏输入框（可逐次输入跳板机与目标主机的凭据）。输入仅用于本次认证，不保存到配置或日志；取消输入会停止本次连接。等待输入时暂停启动超时。首次连接前仍需在本机终端核验主机指纹。
 - 本机用户设置可指定 `reversePorts.sshPath`、`reversePorts.sshConfigFile`。
 - 仅绑定远程 `127.0.0.1`。不会创建远程文件或目录，不修改 `.bashrc`、`/etc`、SSH 服务或 settings.json。
 - 为确认转发成功，SSH 远程命令只执行 `printf` 和 `cat`；限制远程命令的账户可能无法使用。
@@ -63,6 +63,18 @@ npm run package
 
 `test:server` 需先设置 `TEST_SSH_HOST` 为你自己的 SSH 主机别名；默认临时绑定远程 47891 端口，可用 `TEST_REMOTE_PORT` 修改。测试通过内存中的 Python/sh/curl 命令访问本机服务，不创建远程文件。
 
+密码认证集成测试使用系统 OpenSSH 与临时 Paramiko SSH 服务端，覆盖直连、单跳、双跳、各级错误密码重试与取消，以及跳板机慢输入。它不修改系统 SSH 服务、用户账号或用户的 known_hosts。[Paramiko 服务端接口](https://docs.paramiko.org/en/stable/api/server.html)仅用于测试，不进入扩展安装包。
+
+Windows 可在一个终端启动测试夹具：
+
+```powershell
+python -m pip install --target test-results/python-auth paramiko
+$env:PYTHONPATH = "$PWD/test-results/python-auth"
+python test/auth-ssh-fixture.py test-results/auth-fixture
+```
+
+再在另一个终端运行 `npm run test:auth`，结束后在夹具终端按 Ctrl+C 停止临时服务。测试账号与密码仅属于回环地址上的一次性测试环境。
+
 ## English
 
 Install the VSIX **locally** and open **Reverse Ports** in the bottom panel. The view follows VS Code's Ports layout: Port, Forwarded Address, Running Process, and Origin.
@@ -73,4 +85,4 @@ Right-click **Terminal proxy** to select a rule. The extension starts the tunnel
 
 New terminals inherit HTTP_PROXY, HTTPS_PROXY, NO_PROXY and lowercase equivalents, preserving existing exclusions. Existing terminals must be reopened. Injection is non-persistent and workspace-scoped; explicitly created local terminals in the same remote workspace may inherit it too. The terminal button opens in the verified remote folder. Ordinary local windows, mismatched hosts, WSL and containers do not receive injection.
 
-Local SSH keys or an agent are required; password prompts are not implemented. No remote files, shell profiles or system settings are modified. Commands for diagnostics and logs remain available in the Command Palette. Chinese/English localization follows VS Code's display language.
+SSH keys, agents, SSH config and ProxyJump remain supported. When OpenSSH requests a password, key passphrase or interactive authentication response, a masked VS Code input box opens, including separate prompts for jump and destination hosts. Credentials are used only for the current authentication and are never saved to configuration or logs. Canceling stops the connection; the startup timeout pauses while waiting for input. Verify host fingerprints in a local terminal before the first connection. No remote files, shell profiles or system settings are modified. Commands for diagnostics and logs remain available in the Command Palette. Chinese/English localization follows VS Code's display language.

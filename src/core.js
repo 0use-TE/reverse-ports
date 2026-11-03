@@ -32,7 +32,9 @@ function buildArgs(rule, config, marker) {
     const args = [];
     if (config.configFile)
         args.push('-F', config.configFile);
-    args.push('-T', '-o', 'BatchMode=yes', '-o', 'StrictHostKeyChecking=yes', '-o', 'ExitOnForwardFailure=yes', '-o', 'ConnectTimeout=12', '-o', 'ServerAliveInterval=15', '-o', 'ServerAliveCountMax=3', '-o', 'ControlMaster=no', '-o', 'ControlPath=none', '-R', `127.0.0.1:${rule.remotePort}:${bracket(rule.targetHost)}:${rule.targetPort}`, rule.host, 
+    // With ProxyJump, the outer SSH banner wait includes time spent in jump-host
+    // password dialogs. The pausable manager timer owns interactive startup limits.
+    args.push('-T', '-o', `BatchMode=${config.interactiveAuth ? 'no' : 'yes'}`, '-o', 'StrictHostKeyChecking=yes', '-o', 'ExitOnForwardFailure=yes', '-o', `ConnectTimeout=${config.interactiveAuth ? 0 : 12}`, '-o', 'ServerAliveInterval=15', '-o', 'ServerAliveCountMax=3', '-o', 'ControlMaster=no', '-o', 'ControlPath=none', '-R', `127.0.0.1:${rule.remotePort}:${bracket(rule.targetHost)}:${rule.targetPort}`, rule.host,
     // No remote file writes: print a readiness marker, then keep stdin open with cat.
     `printf '${marker}\\n'; cat`);
     return args;
@@ -41,7 +43,7 @@ function explainError(text) {
     if (/remote port forwarding failed|cannot listen to port/i.test(text))
         return t("远程监听端口申请失败：可能已被占用，也可能被 SSH 服务器禁止。请更换远程端口；若仍失败，检查服务端 AllowTcpForwarding / PermitListen。");
     if (/permission denied/i.test(text))
-        return t("SSH 认证失败。请先在本机终端配置密钥或 SSH Agent；本版不弹出密码输入框。");
+        return t("SSH 认证失败。请检查密码、私钥口令或 SSH Agent，以及服务器允许的认证方式。");
     if (/host key verification failed|REMOTE HOST IDENTIFICATION HAS CHANGED/i.test(text))
         return t("主机密钥未确认或已变化，请先在本机终端 SSH 连接并核验。");
     if (/could not resolve hostname|name or service not known/i.test(text))
@@ -121,7 +123,7 @@ class TunnelManager extends EventEmitter {
         const s = this.sessions.get(id);
         return s ? { state: s.state, error: s.error || '', pid: s.child?.pid } : { state: 'stopped', error: '' };
     }
-    start(input) {
+    start(input, authentication) {
         if (this.disposed)
             throw new Error(t("管理器已关闭"));
         const rule = validateRule(input);
@@ -133,13 +135,14 @@ class TunnelManager extends EventEmitter {
         }
         const marker = `REVERSE_PORTS_READY_${randomUUID().replaceAll('-', '')}`;
         const config = this.config();
-        const s = { rule, state: 'starting', error: '', stderr: '', stdout: '', child: undefined };
+        const s = { rule, state: 'starting', error: '', stderr: '', stdout: '', child: undefined, authentication };
         this.sessions.set(rule.id, s);
         let child;
         try {
-            child = this.spawn(config.sshPath || 'ssh', buildArgs(rule, config, marker), { shell: false, windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
+            child = this.spawn(config.sshPath || 'ssh', buildArgs(rule, { ...config, interactiveAuth: !!authentication }, marker), { shell: false, windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'], ...(authentication ? { env: authentication.env } : {}) });
         }
         catch (e) {
+            authentication?.dispose();
             s.state = 'error';
             s.error = explainSystemError(e);
             this.log(`[${rule.name}] ${e.message}`);
@@ -148,33 +151,46 @@ class TunnelManager extends EventEmitter {
         }
         s.child = child;
         this.log(t `[${rule.name}] 连接 ${rule.host}，远程 127.0.0.1:${rule.remotePort} → 本机 ${rule.targetHost}:${rule.targetPort}`);
-        const timer = setTimeout(() => {
+        let timer;
+        const armTimer = () => { timer = setTimeout(() => {
             if (s.state === 'starting') {
                 s.error = t("SSH 启动超时，未收到远程就绪确认。");
                 s.state = 'error';
                 child.kill();
+                authentication?.dispose();
                 this.emit('change');
             }
-        }, this.startTimeout);
-        timer.unref?.();
+        }, this.startTimeout); timer.unref?.(); };
+        armTimer();
+        if (authentication) {
+            authentication.onPrompt = pending => {
+                clearTimeout(timer);
+                if (!pending && s.state === 'starting') armTimer();
+            };
+            authentication.onCancel = () => this.stop(rule.id);
+        }
         child.stdin.on('error', () => { });
         child.stdout.on('data', chunk => {
             s.stdout = (s.stdout + chunk.toString()).slice(-8192);
             if (s.state === 'starting' && s.stdout.includes(marker)) {
                 clearTimeout(timer);
                 s.state = 'running';
+                // Earlier failed attempts must not mislabel a later disconnection.
+                s.stderr = '';
+                authentication?.dispose();
                 this.log(t `[${rule.name}] 隧道已建立（目标服务可用性需单独测试）`);
                 this.emit('change');
             }
         });
         child.stderr.on('data', chunk => { const text = chunk.toString(); s.stderr = (s.stderr + text).slice(-8192); this.log(`[${rule.name}] ${text.trim()}`); });
-        child.on('error', error => { clearTimeout(timer); if (s.state !== 'stopping') {
+        child.on('error', error => { clearTimeout(timer); authentication?.dispose(); if (s.state !== 'stopping') {
             s.state = 'error';
             s.error = explainSystemError(error);
             this.log(`[${rule.name}] ${error.message}`);
         } this.emit('change'); });
         child.once('close', (code, signal) => {
             clearTimeout(timer);
+            authentication?.dispose();
             clearTimeout(s.killTimer);
             if (s.state === 'stopping') {
                 s.state = 'stopped';
@@ -194,6 +210,7 @@ class TunnelManager extends EventEmitter {
         if (!s || !['starting', 'running'].includes(s.state))
             return;
         s.state = 'stopping';
+        s.authentication?.dispose();
         s.child.stdin.end();
         s.child.kill();
         s.killTimer = setTimeout(() => { if (s.child.exitCode === null && s.child.signalCode === null)
