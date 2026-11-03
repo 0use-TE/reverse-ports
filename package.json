@@ -4,7 +4,7 @@
   "description": "%description%",
   "version": "1.0.0",
   "icon": "media/icon.png",
-  "publisher": "ouse-local",
+  "publisher": "0use-TE",
   "license": "MIT",
   "engines": {
     "vscode": "^1.96.0"
