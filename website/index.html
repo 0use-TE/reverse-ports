@@ -23,38 +23,35 @@
 
   <main id="main">
     <section class="hero wrap">
-      <p class="eyebrow"><span class="dot" aria-hidden="true"></span> 一个小巧的 VS Code 扩展</p>
       <h1>把本机服务，<br><span>接到远程。</span><svg class="spark" viewBox="0 0 58 58" fill="none" aria-hidden="true"><path d="M29 3c0 18-8 26-26 26 18 0 26 8 26 26 0-18 8-26 26-26C37 29 29 21 29 3Z"/></svg></h1>
-      <p class="hero-intro">电脑上有代理，服务器也想用？<br>填两个端口，按下回车，就接上了。</p>
+      <p class="hero-intro">在 VS Code 里，转发本机代理和开发服务。</p>
       <div class="hero-actions"><a class="button primary" href="https://marketplace.visualstudio.com/items?itemName=0use-TE.reverse-ports">安装到 VS Code <span aria-hidden="true">↗</span></a><a class="button secondary" href="#preview">看看怎么用 <span aria-hidden="true">↓</span></a></div>
 
       <div class="connection-demo" aria-label="端口转发交互示意">
-        <div class="demo-heading"><span>一条 SSH 隧道，两边就通了。</span><div class="example-switch" role="group" aria-label="选择转发示例"><button type="button" data-example="proxy" aria-pressed="true">本机代理</button><button type="button" data-example="service" aria-pressed="false">开发服务</button></div></div>
+        <div class="demo-heading"><span>转发示意</span><div class="example-switch" role="group" aria-label="选择转发示例"><button type="button" data-example="proxy" aria-pressed="true">本机代理</button><button type="button" data-example="service" aria-pressed="false">开发服务</button></div></div>
         <div class="connection-path" aria-live="polite">
           <div class="endpoint"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="7" width="34" height="34" rx="7"/><path d="M8 24h32M15 16h10m-10 16h10m9-16h.1m-.1 16h.1"/></svg><span>远程服务器</span><code id="remote-address">127.0.0.1:7890</code></div>
           <div class="connection-line" aria-hidden="true"><span>SSH</span><svg viewBox="0 0 180 24"><path d="M2 12h172m-10-9 10 9-10 9"/></svg></div>
           <div class="endpoint local-endpoint"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="7" width="36" height="26" rx="4"/><path d="M19 34v7m10-7v7m-14 0h18"/></svg><span>你的电脑</span><code id="local-address">127.0.0.1:7897</code></div>
         </div>
-        <p id="example-description" class="example-description">服务器访问 7890，就是在用你电脑上的 7897 代理。</p>
-        <p class="demo-note">交互示意，不会建立实际连接。</p>
       </div>
     </section>
 
     <section id="preview" class="preview-section wrap section-space">
-      <div class="section-heading"><div><p class="eyebrow">就在你熟悉的地方</p><h2>不用记命令，<br>在底部面板里搞定。</h2></div><p>添一行就转发。双击就能改。<br>看圆点，就知道有没有连上。</p></div>
+      <div class="section-heading"><h2>不用记命令，<br>在底部面板里搞定。</h2></div>
       <button id="open-preview" class="screenshot-button" type="button" aria-label="放大查看 Reverse Ports 的实际界面"><img src="assets/panel.png" width="790" height="210" alt="Reverse Ports 在 VS Code 中的实际面板，截取端口区域：远程端口 7890 转发到本机 7897，绿色圆点表示已连接。" loading="lazy"></button>
-      <div class="preview-caption"><span>实际 VS Code 面板（端口区域）· 点击可放大</span><span>端口、地址和连接状态，一眼就能看清。</span></div>
+      <div class="preview-caption"><span>实际界面 · 点击放大</span></div>
     </section>
 
     <section class="features wrap section-space" aria-label="常用功能">
-      <article><span class="feature-number">01</span><h3>SSH，照常用。</h3><p>原来的密钥、Agent 和跳板机继续用。需要密码时会弹框，输完就连，不保存密码。</p></article>
-      <article><span class="feature-number">02</span><h3>新终端，直接走代理。</h3><p>右键勾选「终端代理」，就会打开带代理变量的新远程终端。不想自动设置，也能复制命令。</p></article>
-      <article><span class="feature-number">03</span><h3>服务还在你的电脑上。</h3><p>代理、接口都不用搬到服务器。远程端口只监听回环地址，不会向公网开放。</p></article>
+      <article><h3>SSH，照常用。</h3><p>支持密钥、密码和跳板机。</p></article>
+      <article><h3>新终端，直接走代理。</h3><p>勾选「终端代理」，新终端即可用。</p></article>
+      <article><h3>服务还在你的电脑上。</h3><p>远程端口不向公网开放。</p></article>
     </section>
 
     <section id="install" class="install-section section-space">
-      <div class="wrap install-layout"><div class="install-intro"><p class="eyebrow">从这里开始</p><h2>装上，就能用。</h2><p>本机装扩展，远程用服务。<br>VS Code 1.96 或更新版本即可。</p><a class="button primary" href="https://marketplace.visualstudio.com/items?itemName=0use-TE.reverse-ports">去扩展商店安装 <span aria-hidden="true">↗</span></a><a class="download-link" href="https://github.com/0use-TE/reverse-ports/releases/latest">也可以下载 VSIX，手动安装 ↗</a></div>
-      <ol class="steps"><li><span class="step-number">1</span><div><h3>在本机 VS Code 安装</h3><p>搜索 Reverse Ports，点安装。用 VSIX 时，运行「扩展：从 VSIX 安装」。</p></div></li><li><span class="step-number">2</span><div><h3>连上你的 SSH 服务器</h3><p>打开底部的「反向端口」。找不到？在命令面板搜索「反向端口：打开面板」。</p></div></li><li><span class="step-number">3</span><div><h3>填端口，按 Enter</h3><p>远程填 7890，本机填 7897。圆点变绿，就可以在服务器上访问这个服务了。</p></div></li></ol></div>
+      <div class="wrap install-layout"><div class="install-intro"><h2>装上，就能用。</h2><a class="button primary" href="https://marketplace.visualstudio.com/items?itemName=0use-TE.reverse-ports">去扩展商店安装 <span aria-hidden="true">↗</span></a><a class="download-link" href="https://github.com/0use-TE/reverse-ports/releases/latest">下载 VSIX ↗</a></div>
+      <ol class="steps"><li><span class="step-number">1</span><div><h3>在本机 VS Code 安装</h3><p>搜索 Reverse Ports，点安装。</p></div></li><li><span class="step-number">2</span><div><h3>连上 SSH 服务器</h3><p>打开底部的「反向端口」面板。</p></div></li><li><span class="step-number">3</span><div><h3>填端口，按 Enter</h3><p>远程 7890，本机 7897。</p></div></li></ol></div>
     </section>
 
     <section class="faq wrap section-space">
@@ -67,7 +64,7 @@
     <section class="closing wrap"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M35 11v10a8 8 0 0 1-8 8H11m9-9-9 9 9 9"/></svg><h2>本机的服务，<br>远程也能顺手用。</h2><a class="button primary" href="https://marketplace.visualstudio.com/items?itemName=0use-TE.reverse-ports">试试 Reverse Ports <span aria-hidden="true">↗</span></a></section>
   </main>
 
-  <footer class="wrap"><a class="brand" href="./"><img src="assets/icon.svg" width="34" height="34" alt=""><span>Reverse Ports</span></a><span>Ouse 做的一个小工具。</span><div><a href="https://github.com/0use-TE/reverse-ports/issues">反馈问题 ↗</a><a href="https://github.com/0use-TE/reverse-ports/blob/main/LICENSE">MIT License ↗</a></div></footer>
-  <dialog id="image-viewer" aria-label="Reverse Ports 实际界面大图"><button id="close-preview" type="button">关闭 ×</button><img src="assets/panel.png" alt="Reverse Ports 实际界面大图"><p>本机 VS Code 中的真实扩展面板。</p></dialog>
+  <footer class="wrap"><a class="brand" href="./"><img src="assets/icon.svg" width="34" height="34" alt=""><span>Reverse Ports</span></a><div><a href="https://github.com/0use-TE/reverse-ports/issues">反馈问题 ↗</a><a href="https://github.com/0use-TE/reverse-ports/blob/main/LICENSE">MIT License ↗</a></div></footer>
+  <dialog id="image-viewer" aria-label="Reverse Ports 实际界面大图"><button id="close-preview" type="button">关闭 ×</button><img src="assets/panel.png" alt="Reverse Ports 实际界面大图"></dialog>
 </body>
 </html>
