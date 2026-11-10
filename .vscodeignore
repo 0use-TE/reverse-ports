@@ -9,3 +9,8 @@ work/**
 PUBLISHING.md
 package-lock.json
 *.vsix
+docs/**
+website/*.html
+website/*.css
+website/*.js
+website/.nojekyll

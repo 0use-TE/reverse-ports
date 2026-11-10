@@ -1,88 +1,66 @@
 # Reverse Ports
 
-![Reverse Ports](media/icon.png)
+让远程服务器用上你电脑里的代理和服务。
 
-[Changelog](CHANGELOG.md) · [GitHub Releases](https://github.com/0use-TE/reverse-ports/releases/latest)
+[项目网站](https://0use.net/reverse-ports/) · [安装扩展](https://marketplace.visualstudio.com/items?itemName=0use-TE.reverse-ports) · [下载 VSIX](https://github.com/0use-TE/reverse-ports/releases/latest) · [更新记录](CHANGELOG.md)
 
-在 VS Code 底部新增一个采用原生“端口”面板布局的标签页，管理 SSH 反向端口转发。
+用 VS Code 连上服务器后，想让服务器走本机代理，或访问本机正在开发的接口？在底部的「反向端口」里加一条转发就行，不用另开终端挂着一串 SSH 命令。
 
-## 使用
+比如，你电脑上的代理开在 `7897`，可以把它接到服务器的 `7890`：
 
-1. 在**本机**执行“扩展：从 VSIX 安装”，安装生成的 VSIX，并重载窗口。
-2. 打开底部“反向端口”。找不到时，运行命令“反向端口：打开面板”。
-3. 空列表点击“转发端口”，已有规则时点击“添加端口”。输入远程端口，例如 `7890`；转发地址可选填 `7897` 或 `127.0.0.1:7897`，留空默认本机同端口，Enter 保存并启动，SSH 主机自动采用当前远程主机（本地窗口回退到 SSH 配置中的首个主机）。
-4. 按 Enter 或点击编辑行外保存并启动，Escape 取消。创建时在两个输入框之间点击不会提前保存。端口前的圆点显示连接状态，悬停可查看错误。双击或按 F2 行内编辑端口，运行中的规则保存后会自动重启。
-5. 悬停行时，端口列显示修改端口、停止转发图标；转发地址列右侧显示打开终端、复制、修改转发地址图标。停止转发会先关闭隧道，再移除规则。
-
-空列表只显示说明与一个“转发端口”按钮。标签页徽标显示正在运行的转发数量。端口只显示数字；修改本机目标可点击地址旁的编辑图标、双击转发地址或右键选择“更改转发地址”。运行中的规则自动停止、保存并重新连接，停止的规则只保存。修改远程端口后，已有代理终端需重开以使用新变量。
-
-布局保持“端口 / 转发地址 / 正在运行的进程 / 源”四列，没有顶部工具栏、独立表单或常驻说明。当前未探测远程进程，进程列留空；源显示“手动转发”，悬停可查看 SSH 主机。规则存储仍兼容旧版本。
-
-## 终端代理
-
-- 右键某一行，启用“终端代理”：扩展自动启动该隧道，核对远程主机并注入环境后，**自动创建一个新终端**。无需再手动打开，不会因状态刷新或重连反复创建终端。
-- 点击行内“打开终端”图标同样会选择该规则、按需启动并打开带代理变量的终端。
-- 一次只选一条代理规则，适用于 HTTP／混合代理。取消“终端代理”会移除后续新终端的变量贡献，不会关闭已有终端。
-- 地址取规则的**远程端口**。远程 `7890` → 本机 `7897` 时，远程终端使用 `http://127.0.0.1:7890`。
-- 自动注入 `HTTP_PROXY`、`HTTPS_PROXY`、`NO_PROXY` 和小写兼容变量，保留原有排除项。普通新终端也可继承；已有终端需要重开。
-- 仅在隧道已连接、当前窗口是匹配的 Remote SSH 工作区且已打开远程文件夹时启用。别名通过本机 `ssh -G` 解析用户、主机和 SSH 端口进行比对。无法匹配时提示原因，不会在其他主机打开终端。
-- 停止/断线后暂停后续注入，重连成功后恢复变量贡献；不会自动反复打开终端。窗口重载后仍需手动启动隧道。
-- API 按工作区注入，因此同一远程窗口中**显式创建的本地终端也可能继承**变量。行内终端按钮使用远程 URI，确保打开匹配主机的远程终端。普通本地窗口、WSL 和容器窗口不启用自动注入。
-
-复制按钮或右键“复制三行变量”可直接取得：
-
-```bash
-export HTTP_PROXY=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890
-export HTTPS_PROXY=http://127.0.0.1:7890 https_proxy=http://127.0.0.1:7890
-export NO_PROXY="localhost,127.0.0.1,::1${NO_PROXY:+,$NO_PROXY}${no_proxy:+,$no_proxy}"; export no_proxy="$NO_PROXY"
+```text
+远程服务器 127.0.0.1:7890  →  SSH  →  你的电脑 127.0.0.1:7897
 ```
 
-变量只影响读取它们的程序，不自动代理已启动进程、系统服务或容器。复制命令适用于远程 Linux 的 sh/Bash。
+![Reverse Ports 在 VS Code 中的实际界面](website/assets/panel.png)
 
-## 认证与设置
+## 怎么用
 
-- 扩展固定在本机 UI 扩展宿主运行，使用本机 OpenSSH，与微软 Remote SSH 的连接独立。
-- 支持现有 SSH 密钥、Agent、SSH config 和 ProxyJump。需要密码、私钥口令或交互式认证时，自动弹出 VS Code 隐藏输入框（可逐次输入跳板机与目标主机的凭据）。输入仅用于本次认证，不保存到配置或日志；取消输入会停止本次连接。等待输入时暂停启动超时。首次连接前仍需在本机终端核验主机指纹。
-- 本机用户设置可指定 `reversePorts.sshPath`、`reversePorts.sshConfigFile`。
-- 仅绑定远程 `127.0.0.1`。不会创建远程文件或目录，不修改 `.bashrc`、`/etc`、SSH 服务或 settings.json。
-- 为确认转发成功，SSH 远程命令只执行 `printf` 和 `cat`；限制远程命令的账户可能无法使用。
-- 配置保存在本机扩展 globalState，代理选择保存在当前工作区 workspaceState；环境变量集合不持久化。
-- 环境检查、原始日志、停止全部等操作保留在命令面板，不占用面板按钮。实际失败仍有通知和悬停详情。
-- 中英文自动跟随 VS Code 显示语言。中文使用简体中文，其他语言回退到英文；用户填写的名称和原始 SSH 日志不翻译。
+1. 在**本机 VS Code** 安装 [Reverse Ports](https://marketplace.visualstudio.com/items?itemName=0use-TE.reverse-ports)。也可以下载 VSIX，运行「扩展：从 VSIX 安装」。
+2. 用 Remote SSH 连上服务器，打开底部的「反向端口」。找不到这个标签页，就在命令面板搜索「反向端口：打开面板」。
+3. 点击「转发端口」，填远程端口和本机地址，按 Enter。比如远程填 `7890`，本机填 `7897`；本机地址留空，就是两边用同一个端口。
 
-## 开发与测试
+圆点变绿就连上了。点圆点可以暂停或重新启动；双击端口或地址可以修改。行尾的 × 会停止转发并移除这条规则。
+
+扩展会使用当前远程窗口的 SSH 主机。在本地窗口里，则默认使用 SSH 配置中的第一个主机。
+
+## 让远程终端走代理
+
+转发的是 HTTP 或混合代理时，右键这条规则，勾选「终端代理」。扩展会打开一个带代理变量的**新远程终端**，也可以直接点行内的终端图标。
+
+之后创建的新终端也能继承代理设置。已经打开的终端需要重开；取消勾选不会改动已有终端。这个功能需要在对应的 Remote SSH 窗口中使用，并且已打开远程文件夹。
+
+只想自己设置？点复制按钮，就能拿到三行 `export` 命令，粘贴到远程终端即可。代理地址用的是**远程端口**：上面的例子里是 `http://127.0.0.1:7890`。
+
+这只给读取代理变量的程序设置代理，不会接管整台服务器的网络。
+
+## 登录和连接
+
+你原来的 SSH 密钥、Agent、config 和 ProxyJump 都可以继续用。需要密码或私钥口令时，会弹出隐藏输入框；密码不保存，取消输入就停止这次连接。
+
+第一次连接新主机，先在本机终端运行一次 `ssh 你的主机别名`，核验并确认主机指纹。扩展用的是本机 OpenSSH，与 Remote SSH 的登录连接相互独立。
+
+转发只监听服务器的 `127.0.0.1`，不会向公网开放端口，也不修改服务器上的文件和 SSH 配置。VS Code 重载后，需要手动重新启动转发。
+
+如果没连上，把鼠标放在状态圆点上看原因，或运行「反向端口：日志」。先确认本机服务已启动、地址没填错，再检查 SSH 登录和远程端口是否被占用。
+
+## 设置
+
+通常不需要改。使用其他 SSH 程序或配置文件时，在本机用户设置中填写：
+
+| 设置 | 用途 |
+| --- | --- |
+| `reversePorts.sshPath` | SSH 程序路径，默认是 `ssh` |
+| `reversePorts.sshConfigFile` | 要使用的 SSH 配置文件路径 |
+
+## 开发
 
 ```bash
-npm install
+npm ci
 npm test
-npm run test:vscode
 npm run package
 ```
 
-打开源码目录按 F5 调试。`test:vscode` 使用独立 Profile，支持 `TEST_VSCODE_VERSION=1.96.4` 和 `TEST_VSCODE_LOCALE=en/zh-cn`。中文测试需在 `test-results/extensions` 安装与测试版本匹配的微软中文语言包。
+打开源码目录按 F5 调试。更多测试方式见[开发说明](docs/development.md)，实测情况见[验证记录](TEST-RESULTS.md)。
 
-`test:server` 需先设置 `TEST_SSH_HOST` 为你自己的 SSH 主机别名；默认临时绑定远程 47891 端口，可用 `TEST_REMOTE_PORT` 修改。测试通过内存中的 Python/sh/curl 命令访问本机服务，不创建远程文件。
-
-密码认证集成测试使用系统 OpenSSH 与临时 Paramiko SSH 服务端，覆盖直连、单跳、双跳、各级错误密码重试与取消，以及跳板机慢输入。它不修改系统 SSH 服务、用户账号或用户的 known_hosts。[Paramiko 服务端接口](https://docs.paramiko.org/en/stable/api/server.html)仅用于测试，不进入扩展安装包。
-
-Windows 可在一个终端启动测试夹具：
-
-```powershell
-python -m pip install --target test-results/python-auth paramiko
-$env:PYTHONPATH = "$PWD/test-results/python-auth"
-python test/auth-ssh-fixture.py test-results/auth-fixture
-```
-
-再在另一个终端运行 `npm run test:auth`，结束后在夹具终端按 Ctrl+C 停止临时服务。测试账号与密码仅属于回环地址上的一次性测试环境。
-
-## English
-
-Install the VSIX **locally** and open **Reverse Ports** in the bottom panel. The view follows VS Code's Ports layout: Port, Forwarded Address, Running Process, and Origin.
-
-Click **Add Port** to edit a row inline. Enter a remote port and optionally a local port or host:port; a blank destination defaults to the same local port and the SSH host is inherited from the current remote workspace (or the first configured SSH host). The port cell contains edit and stop actions; the address cell contains terminal, copy and destination edit actions. Editing a running rule automatically restarts it; stopped rules remain stopped. Reopen existing proxy terminals after changing the remote port. The empty view shows one explanation and a Forward a Port button; the tab badge counts running forwards. Enter or clicking outside the editing row saves; Escape cancels. Clicking between the two creation inputs does not submit. Double-click a row or press F2 to edit. Hover a row to copy proxy exports, open a terminal, or stop/remove the forwarding rule.
-
-Right-click **Terminal proxy** to select a rule. The extension starts the tunnel as needed and **automatically opens one new remote terminal once the tunnel and environment are ready**. The terminal icon does the same. Repeated state updates or reconnects do not spawn additional terminals. Proxy URLs use the rule's remote listening port, not its local destination port.
-
-New terminals inherit HTTP_PROXY, HTTPS_PROXY, NO_PROXY and lowercase equivalents, preserving existing exclusions. Existing terminals must be reopened. Injection is non-persistent and workspace-scoped; explicitly created local terminals in the same remote workspace may inherit it too. The terminal button opens in the verified remote folder. Ordinary local windows, mismatched hosts, WSL and containers do not receive injection.
-
-SSH keys, agents, SSH config and ProxyJump remain supported. When OpenSSH requests a password, key passphrase or interactive authentication response, a masked VS Code input box opens, including separate prompts for jump and destination hosts. Credentials are used only for the current authentication and are never saved to configuration or logs. Canceling stops the connection; the startup timeout pauses while waiting for input. Verify host fingerprints in a local terminal before the first connection. No remote files, shell profiles or system settings are modified. Commands for diagnostics and logs remain available in the Command Palette. Chinese/English localization follows VS Code's display language.
+MIT License · [反馈问题](https://github.com/0use-TE/reverse-ports/issues)
